@@ -65,7 +65,7 @@ const ActivityForm: FC<IProps> = ({
                                placeholder='Description'/>
                 <Form.Input onChange={handleInputChange} name={'category'} value={activity.category}
                             placeholder='Category'/>
-                <Form.Input onChange={handleInputChange} name={'date'} value={activity.date} type='date'
+                <Form.Input onChange={handleInputChange} name={'date'} value={activity.date} type='datetime-local'
                             placeholder='Date'/>
                 <Form.Input onChange={handleInputChange} name={'city'} value={activity.city} placeholder='City'/>
                 <Form.Input onChange={handleInputChange} name={'venue'} value={activity.venue} placeholder='Venue'/>
