@@ -1,30 +1,30 @@
-import React, {FC} from 'react';
+import React, {FC, useContext} from 'react';
 import {Button, Card, Image} from "semantic-ui-react";
-import {IActivity} from "../../../app/model/activity";
+import ActivityStore from '../../../app/stores/activityStore';
+import {observer} from "mobx-react-lite";
 
-interface IProps {
-    activity: IActivity;
-    setEditMode: (editMode: boolean) => void
-    setSelectedActivity: (activity: IActivity | null) => void;
-}
 
-const ActivityDetails: FC<IProps> = ({activity, setEditMode, setSelectedActivity}) => {
+const ActivityDetails: FC = ({}) => {
+        const activityStore = useContext(ActivityStore);
+        const {selectedActivity: activity, openEditForm, cancelSelectedActivity} = activityStore;
         return (
             <Card fluid>
-                <Image src={`assets/categoryImages/${activity.category}.jpg`} wrapped ui={false}/>
+                <Image src={`assets/categoryImages/${activity!.category}.jpg`} wrapped ui={false}/>
                 <Card.Content>
-                    <Card.Header>{activity.title}</Card.Header>
+                    <Card.Header>{activity!.title}</Card.Header>
                     <Card.Meta>
-                        <span>{activity.date}</span>
+                        <span>{activity!.date}</span>
                     </Card.Meta>
                     <Card.Description>
-                        {activity.description}
+                        {activity!.description}
                     </Card.Description>
                 </Card.Content>
                 <Card.Content extra>
                     <Button.Group widths={2}>
-                        <Button onClick={() => setEditMode(true)} basic color='blue' type="button" content='Edit'></Button>
-                        <Button onClick={() => setSelectedActivity(null)} basic color='grey' type="button" content='Cancel'></Button>
+                        <Button onClick={() => openEditForm(activity!.id)} basic color='blue' type="button"
+                                content='Edit'></Button>
+                        <Button onClick={() => cancelSelectedActivity()} basic color='grey' type="button"
+                                content='Cancel'></Button>
                     </Button.Group>
                 </Card.Content>
             </Card>
@@ -32,4 +32,4 @@ const ActivityDetails: FC<IProps> = ({activity, setEditMode, setSelectedActivity
     }
 ;
 
-export default ActivityDetails
+export default observer(ActivityDetails)

@@ -1,20 +1,16 @@
-import React, {FC, SyntheticEvent} from 'react';
+import React, {FC, useContext} from 'react';
 import {Button, Item, Label, Segment} from "semantic-ui-react";
-import {IActivity} from "../../../app/model/activity";
+import {observer} from "mobx-react-lite";
+import ActivityStore from '../../../app/stores/activityStore'
 
-interface IProps {
-    activities: IActivity[],
-    selectActivity: (id: string) => void;
-    deleteActivity: (e: SyntheticEvent<HTMLButtonElement>, id: string) => void;
-    submitting: boolean;
-    target: string
-}
+const ActivityList: FC = () => {
+    const activityStore = useContext(ActivityStore);
+    const {activitiesByDates, selectActivity, submitting, deleteActivity, target} = activityStore
 
-const ActivityList: FC<IProps> = ({activities, selectActivity, deleteActivity, submitting, target}) => {
     return (
         <Segment clearing>
             <Item.Group divided>
-                {activities.map(activity => (
+                {activitiesByDates.map(activity => (
                     <Item key={activity.id}>
                         <Item.Content>
                             <Item.Header as='a'>{activity.title}</Item.Header>
@@ -25,8 +21,11 @@ const ActivityList: FC<IProps> = ({activities, selectActivity, deleteActivity, s
                                 {/*<Image src='/images/wireframe/short-paragraph.png'/>*/}
                             </Item.Description>
                             <Item.Extra>
-                                <Button onClick={() => selectActivity(activity.id)} floated={"right"} type="button" content="View" color="blue"/>
-                                <Button name={activity.id} loading={target === activity.id && submitting} onClick={(e) => deleteActivity(e, activity.id)} floated={"right"} type="button" content="Delete" color="red"/>
+                                <Button onClick={() => selectActivity(activity.id)} floated={"right"} type="button"
+                                        content="View" color="blue"/>
+                                <Button name={activity.id} loading={target === activity.id && submitting}
+                                        onClick={(e) => deleteActivity(e, activity.id)} floated={"right"} type="button"
+                                        content="Delete" color="red"/>
 
                                 <Label basic content={activity.category}/>
                             </Item.Extra>
@@ -39,4 +38,4 @@ const ActivityList: FC<IProps> = ({activities, selectActivity, deleteActivity, s
     )
 }
 
-export default ActivityList;
+export default observer(ActivityList);
