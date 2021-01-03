@@ -1,37 +1,41 @@
-import React, {FC, FormEvent, useContext, useState} from 'react';
+import React, {FC, FormEvent, useContext, useEffect, useState} from 'react';
 import {Button, Form, Segment} from "semantic-ui-react";
 import {IActivity} from "../../../app/model/activity";
 import ActivityStore from "../../../app/stores/activityStore";
 import {observer} from "mobx-react-lite";
+import {RouteComponentProps} from "react-router";
 
-interface IProps {
-    activity: IActivity;
+interface DetailParams {
+    id: string;
 }
 
-
-const ActivityForm: FC<IProps> = ({
-                                      activity: initializeFormState
-                                  }) => {
+const ActivityForm: FC<RouteComponentProps<DetailParams>> = ({match, history}) => {
 
     const activityStore = useContext(ActivityStore);
-    const {createActivity, editActivity, submitting, cancelFormOpen} = activityStore;
-    const initializeForm = () => {
-        if (initializeFormState) {
-            return initializeFormState;
-        } else {
-            return {
-                id: '',
-                title: '',
-                category: '',
-                description: '',
-                date: '',
-                city: '',
-                venue: ''
-            };
-        }
-    }
+    const {createActivity, editActivity, submitting, activity: initialFormState, loadActivity, clearActivity} = activityStore;
 
-    const [activity, setActivity] = useState<IActivity>(initializeForm);
+    const [activity, setActivity] = useState<IActivity>({
+        id: '',
+        title: '',
+        category: '',
+        description: '',
+        date: '',
+        city: '',
+        venue: ''
+    });
+
+    useEffect(() => {
+        if (match.params.id && activity.id.length === 0) {
+            loadActivity(match.params.id).then(() => {
+                initialFormState && setActivity(initialFormState);
+            });
+        }
+        return () => {
+            clearActivity();
+        }
+
+
+    }, [loadActivity, clearActivity, match.params.id, initialFormState]);
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault()
@@ -40,9 +44,13 @@ const ActivityForm: FC<IProps> = ({
                 ...activity,
                 id: activity.id
             }
-            createActivity(newActivity);
+            createActivity(newActivity).then(() => {
+                history.push(`/activities/${newActivity.id}`);
+            });
         } else {
-            editActivity(activity)
+            editActivity(activity).then(() => {
+                history.push(`/activities/${activity.id}`);
+            })
         }
     }
 
@@ -67,7 +75,7 @@ const ActivityForm: FC<IProps> = ({
                 <Form.Input onChange={handleInputChange} name={'city'} value={activity.city} placeholder='City'/>
                 <Form.Input onChange={handleInputChange} name={'venue'} value={activity.venue} placeholder='Venue'/>
                 <Button loading={submitting} floated={"right"} positive type="submit" content='Submit'/>
-                <Button onClick={() => cancelFormOpen()} floated={"right"} type="button" content='Cancel'/>
+                <Button onClick={() => history.push('/activities')} floated={"right"} type="button" content='Cancel'/>
             </Form>
 
         </Segment>
