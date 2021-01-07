@@ -12,7 +12,7 @@ import ActivityDetailedSidebar from "./ActivityDetailedSidebar";
 interface DetailParams {
     id: string;
 }
-const ActivityDetails: FC<RouteComponentProps<DetailParams>> = ({match, history}) => {
+const ActivityDetails: FC<RouteComponentProps<DetailParams>> = ({match}) => {
         const activityStore = useContext(ActivityStore);
         const {activity, loadActivity, loadingInitial} = activityStore;
 
@@ -20,7 +20,10 @@ const ActivityDetails: FC<RouteComponentProps<DetailParams>> = ({match, history}
             loadActivity(match.params.id);
         }, [loadActivity, match.params.id])
 
-    if (loadingInitial || !activity) return <LoadingComponent content='Loading activity...'/>
+    if (loadingInitial) return <LoadingComponent content='Loading activity...'/>
+
+    if (!activity)
+        return <h2>Activity not found</h2>
 
         return (
            <Grid>

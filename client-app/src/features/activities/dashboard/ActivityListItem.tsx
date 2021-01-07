@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {Button, Icon, Item, ItemGroup, Label, Segment} from "semantic-ui-react";
+import {Button, Icon, Item, ItemGroup, Segment} from "semantic-ui-react";
 import {Link} from "react-router-dom";
 import ActivityStore from "../../../app/stores/activityStore";
 import {IActivity} from "../../../app/model/activity";
@@ -21,7 +21,7 @@ const ActivityListItem: React.FC<{ activity: IActivity }> = ({activity}) => {
                         </Item.Content>
                     </Item>
                 </ItemGroup>
-            </Segment>
+                </Segment>
             <Segment>
                 <Icon name={"clock"}/> {activity.date}
                 <Icon name={"marker"}/> {activity.venue}, {activity.city}

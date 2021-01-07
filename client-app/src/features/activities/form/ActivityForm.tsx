@@ -35,7 +35,7 @@ const ActivityForm: FC<RouteComponentProps<DetailParams>> = ({match, history}) =
         }
 
 
-    }, [loadActivity, clearActivity, match.params.id, initialFormState]);
+    }, [loadActivity, clearActivity, match.params.id, initialFormState, activity.id.length]);
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault()
