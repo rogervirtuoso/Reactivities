@@ -1,14 +1,16 @@
 import {action, computed, configure, makeObservable, observable, runInAction} from "mobx";
-import {createContext, SyntheticEvent} from "react";
-import {IActivity} from "../model/activity";
+import {SyntheticEvent} from "react";
+import {IActivity} from "../models/activity";
 import agent from "../api/agent";
 import {v4 as uuid} from "uuid";
 import {history} from "../../index";
 import {toast} from "react-toastify";
+import {RootStore} from "./rootStore";
 
-configure({enforceActions: "always"});
+export default class ActivityStore {
 
-class ActivityStore {
+    rootStore: RootStore;
+
     @observable activityRegistry = new Map();
     @observable loadingInitial = false;
     @observable activity: IActivity | null = null;
@@ -22,8 +24,8 @@ class ActivityStore {
     groupActivitiesByDates(activities: IActivity[]) {
         const sortedActivities = activities
             .sort(
-            ((a, b) => a.date.getTime() - b.date.getTime())
-        )
+                ((a, b) => a.date.getTime() - b.date.getTime())
+            )
 
         return Object.entries(sortedActivities.reduce((activities, activity) => {
             const date = activity.date.toISOString().split('T')[0];
@@ -33,8 +35,9 @@ class ActivityStore {
         }, {} as { [key: string]: IActivity[] }));
     }
 
-    constructor() {
+    constructor(rootStore: RootStore) {
         makeObservable(this);
+        this.rootStore = rootStore
     }
 
     @action loadActivities = async () => {
@@ -157,5 +160,3 @@ class ActivityStore {
         this.activity = null;
     }
 }
-
-export default createContext(new ActivityStore())

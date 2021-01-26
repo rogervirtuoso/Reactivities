@@ -9,17 +9,17 @@ interface IProps extends FieldRenderProps<string, HTMLElement>, FormFieldProps {
 const TextInput: React.FC<IProps> = ({
                                          input,
                                          width,
-                                         type,
                                          placeholder,
                                          meta: {touched, error}
                                      }) => {
     return <FormField error={touched && !!error}>
         <input {...input}
                placeholder={placeholder}
-               type={type}
                width={width}
         />
+        <br/>
         {touched && error && (
+
             <Label basic color={"red"}>
                 {error}
             </Label>

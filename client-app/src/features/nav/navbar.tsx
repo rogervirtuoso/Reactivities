@@ -1,12 +1,13 @@
 import React, {FC, useContext} from 'react';
-import {Button, Container, Menu} from "semantic-ui-react";
-import ActivityStore from '../../app/stores/activityStore'
+import {Button, Container, Dropdown, Image, Menu} from "semantic-ui-react";
 import {observer} from "mobx-react-lite";
-import {NavLink} from "react-router-dom";
+import {Link, NavLink} from "react-router-dom";
+import {RootStoreContext} from "../../app/stores/rootStore";
 
 
 const Navbar: FC = () => {
-    const activityStore = useContext(ActivityStore);
+    const rootStore = useContext(RootStoreContext);
+    const {isLoggedIn, user, logout} = rootStore.userStore;
     return (
         <Menu fixed={"top"} inverted>
             <Container>
@@ -16,10 +17,25 @@ const Navbar: FC = () => {
                 </Menu.Item>
                 <Menu.Item name='Activities' as={NavLink} to='/activities'/>
                 <Menu.Item>
-                    <Button onClick={activityStore.openCreateForm} type="button" positive as={NavLink}
+                    <Button onClick={rootStore.activityStore.openCreateForm} type="button" positive as={NavLink}
                             to='/createActivity'
                             content='Create Activity'></Button>
                 </Menu.Item>
+                {user &&
+                <Menu.Item position='right'>
+                    <Image avatar spaced='right' src={user.image || '/assets/user.png'}/>
+                    <Dropdown pointing='top left' text={user.displayName}>
+                        <Dropdown.Menu>
+                            <Dropdown.Item
+                                as={Link}
+                                to={`/profile/username`}
+                                text='My profile'
+                                icon='user'/>
+                            <Dropdown.Item text='Logout' icon='power' onClick={logout}/>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </Menu.Item>
+                }
             </Container>
         </Menu>
     );

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Grid, Icon, Segment} from "semantic-ui-react";
-import {IActivity} from "../../../app/model/activity";
+import {IActivity} from "../../../app/models/activity";
 import {observer} from "mobx-react-lite";
 import {format} from "date-fns";
 
