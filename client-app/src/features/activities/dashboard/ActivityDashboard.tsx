@@ -12,7 +12,7 @@ const ActivityDashboard: React.FC = () => {
 
     useEffect(() => {
         loadActivities();
-    }, []);
+    }, [loadActivities]);
 
     if (loadingInitial) {
         return <LoadingComponent content="Loading activities..."/>

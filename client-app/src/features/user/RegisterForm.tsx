@@ -9,18 +9,20 @@ import {combineValidators, isRequired} from "revalidate";
 import ErrorMessage from "../../app/common/form/ErrorMessage";
 
 const validator = combineValidators({
+    username: isRequired('username'),
+    displayname: isRequired('displayname'),
     email: isRequired('email'),
     password: isRequired('password')
 });
 
 
-const LoginForm = () => {
+const RegisterForm = () => {
     const rootStore = useContext(RootStoreContext);
-    const {login} = rootStore.userStore;
+    const {register} = rootStore.userStore;
 
     return (
         <FinalForm
-            onSubmit={(values: IUserFormValues) => login(values).catch(error => ({
+            onSubmit={(values: IUserFormValues) => register(values).catch(error => ({
                 [FORM_ERROR]: error
             }))}
             validate={validator}
@@ -32,10 +34,14 @@ const LoginForm = () => {
                         color='teal'
                         textAlign='center'
                     />
+                    <Field name='username' component={TextInput} placeholder='Username'/>
+                    <Field name='displayname' component={TextInput} placeholder='Display Name'/>
                     <Field name='email' component={TextInput} placeholder='Email'/>
                     <Field name='password' type={'password'} component={TextInput} placeholder='Password'/>
                     {submitError && !dirtySinceLastSubmit &&
-                        <ErrorMessage error={submitError} text={'Invalid email or password'}/>
+                        <ErrorMessage
+                            error={submitError}
+                        />
                     }
                     <Button disabled={(invalid && !dirtySinceLastSubmit) || pristine} loading={submitting} color='teal'
                             content='Login' fluid/>
@@ -46,4 +52,4 @@ const LoginForm = () => {
     );
 };
 
-export default LoginForm;
+export default RegisterForm;
