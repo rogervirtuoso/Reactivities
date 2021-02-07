@@ -33,9 +33,9 @@ namespace Application.User
 
                 return new User
                 {
-                    DisplayName = user.DisplayName,
+                    DisplayName = user?.DisplayName,
                     Token = _jwtGenerator.CreateToken(user),
-                    UserName = user.UserName,
+                    UserName = user?.UserName,
                     Image = null
                 };
             }
