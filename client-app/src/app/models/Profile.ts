@@ -8,9 +8,9 @@ export interface IProfile {
     photos: IPhoto[],
 }
 
-interface IPhoto {
+export interface IPhoto {
     id: string,
     url: string,
-    isMain: string,
+    isMain: boolean,
 
 }
