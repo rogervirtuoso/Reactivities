@@ -6,8 +6,10 @@ import {observer} from "mobx-react-lite";
 
 const ProfilePhotos = () => {
     const rootStore = useContext(RootStoreContext);
-    const {profile, isCurrentUser, uploadPhoto, uploadingPhoto, setMainPhoto, loading} = rootStore.profileStore;
+    const {profile, isCurrentUser, uploadPhoto, uploadingPhoto, setMainPhoto, loading, deletePhoto} = rootStore.profileStore;
     const [addPhotoMode, setAddPhotoMode] = useState(false);
+    const [target, setTarget] = useState<string | undefined>(undefined);
+    const [deleteTarget, setDeleteTarget] = useState<string | undefined>(undefined);
 
     return (
         <Tab.Pane>
@@ -32,14 +34,31 @@ const ProfilePhotos = () => {
                                 {isCurrentUser &&
                                 <ButtonGroup fluid widths={2}>
                                     <Button
+                                        name={photo.id}
                                         id={photo.id}
-                                        onClick={() => {setMainPhoto(photo)}}
+                                        onClick={(e) => {
+                                            setMainPhoto(photo);
+                                            setTarget(e.currentTarget.name)
+                                        }}
                                         basic
                                         positive
                                         content={'Main'}
-                                        loading={loading}
+                                        loading={loading && target == photo.id}
+                                        disabled={photo.isMain}
                                     />
-                                    <Button basic negative icon={'trash'}/>
+                                    <Button
+                                        name={photo.id}
+                                        id={photo.id}
+                                        onClick={(e) => {
+                                            deletePhoto(photo);
+                                            setDeleteTarget(e.currentTarget.name)
+                                        }}
+                                        basic
+                                        negative
+                                        icon={'trash'}
+                                        loading={loading && deleteTarget == photo.id}
+                                        disabled={photo.isMain}
+                                    />
                                 </ButtonGroup>
                                 }
                             </Card>
