@@ -14,3 +14,8 @@ export interface IPhoto {
     isMain: boolean,
 
 }
+
+export interface IProfileFormValues {
+    displayName?: string;
+    bio?: string;
+}

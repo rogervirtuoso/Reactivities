@@ -2,7 +2,7 @@ import React from 'react';
 import {FieldRenderProps} from "react-final-form";
 import {FormField, FormFieldProps, Label} from "semantic-ui-react";
 
-interface IProps extends FieldRenderProps<string, HTMLElement>, FormFieldProps {
+interface IProps extends FieldRenderProps<string, HTMLInputElement | HTMLElement>, FormFieldProps {
 
 }
 
