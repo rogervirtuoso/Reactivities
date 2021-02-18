@@ -1,4 +1,4 @@
-import {action, computed, configure, makeObservable, observable, runInAction} from "mobx";
+import {action, computed, makeObservable, observable, runInAction} from "mobx";
 import {SyntheticEvent} from "react";
 import {IActivity, IAttendee} from "../models/activity";
 import agent from "../api/agent";
@@ -6,8 +6,8 @@ import {v4 as uuid} from "uuid";
 import {history} from "../../index";
 import {toast} from "react-toastify";
 import {RootStore} from "./rootStore";
-import userStore from "./userStore";
 import {createAttendee, setActivityProps} from "../common/util/util";
+import {HubConnection, HubConnectionBuilder, LogLevel} from "@microsoft/signalr";
 
 export default class ActivityStore {
 
@@ -18,13 +18,77 @@ export default class ActivityStore {
     @observable activity: IActivity | null = null;
     @observable submitting = false;
     @observable target = '';
-    @observable loading = false;
+    @observable loading = false
+    @observable.ref hubConnection: HubConnection | null = null;
+
+    @action createHubConnection = (activityId: string) => {
+        this.hubConnection = new HubConnectionBuilder()
+            .withUrl("http://localhost:5000/chat", {
+                accessTokenFactory: () => this.rootStore.commonStore.token!
+            })
+            .configureLogging(LogLevel.Information)
+            .withAutomaticReconnect()
+            .build();
+
+        if (this.hubConnection.state === 'Disconnected') {
+            this.hubConnection
+                .start()
+                .then(() => console.log(this.hubConnection!.state))
+                .then(() => {
+                    if (this.hubConnection?.state === "Connected") {
+                        console.log('Attempting to join group');
+                        this.hubConnection?.invoke('AddToGroup', activityId);
+                    }
+                })
+                .catch((error) =>
+                    console.log('Error establishing connection: ', error)
+                );
+        }
+
+        this.hubConnection.on('ReceiveComment', comment => {
+            runInAction(() => {
+                this.activity!.comments.push(comment);
+            })
+        });
+
+        this.hubConnection.on('Send', message => {
+            toast.info(message);
+        })
+    };
+
+    @action stopHubConnection = () => {
+        if (this.hubConnection?.state === "Connected") {
+            this.hubConnection!.invoke("RemoveFromGroup", this.activity!.id)
+                .then(() => {
+                    this.hubConnection!.stop();
+                })
+                .then(() => console.log("Connection stopped"))
+                .catch((err) => console.log("error", err));
+        }
+    };
+
+    @action addComment = async (values: any) => {
+        if (this.hubConnection?.state === "Connected") {
+
+            values.activityId = this.activity!.id;
+
+            try {
+                await this.hubConnection!.invoke('SendComment', values);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    }
+
 
     @computed get activitiesByDates() {
         return this.groupActivitiesByDates(Array.from(this.activityRegistry.values()));
     }
 
-    groupActivitiesByDates(activities: IActivity[]) {
+    groupActivitiesByDates(activities
+                               :
+                               IActivity[]
+    ) {
         const sortedActivities = activities
             .sort(
                 ((a, b) => a.date.getTime() - b.date.getTime())
@@ -38,12 +102,16 @@ export default class ActivityStore {
         }, {} as { [key: string]: IActivity[] }));
     }
 
-    constructor(rootStore: RootStore) {
+    constructor(rootStore
+                    :
+                    RootStore
+    ) {
         makeObservable(this);
         this.rootStore = rootStore
     }
 
-    @action loadActivities = async () => {
+    @action
+    loadActivities = async () => {
         this.loadingInitial = true;
         try {
             const activities = await agent.Activities.list();
@@ -61,7 +129,8 @@ export default class ActivityStore {
         }
     }
 
-    @action loadActivity = async (id: string) => {
+    @action
+    loadActivity = async (id: string) => {
         let activity = this.getActivity(id);
         if (activity) {
             this.activity = activity;
@@ -84,7 +153,8 @@ export default class ActivityStore {
         }
     }
 
-    @action clearActivity = () => {
+    @action
+    clearActivity = () => {
         this.activity = null;
     }
 
@@ -93,7 +163,8 @@ export default class ActivityStore {
     }
 
 
-    @action createActivity = async (activity: IActivity) => {
+    @action
+    createActivity = async (activity: IActivity) => {
         this.submitting = true;
         try {
             activity.id = uuid();
@@ -103,6 +174,7 @@ export default class ActivityStore {
             let attendees: IAttendee[] = [];
             attendees.push(attendee);
             activity.attendees = attendees;
+            activity.comments = [];
             activity.isHost = true;
             runInAction(() => {
                 this.activityRegistry.set(activity.id, activity);
@@ -118,7 +190,8 @@ export default class ActivityStore {
         }
     }
 
-    @action deleteActivity = async (event: SyntheticEvent<HTMLButtonElement>, id: string) => {
+    @action
+    deleteActivity = async (event: SyntheticEvent<HTMLButtonElement>, id: string) => {
         this.submitting = true;
         try {
             this.target = event.currentTarget.name;
@@ -140,7 +213,8 @@ export default class ActivityStore {
         }
     }
 
-    @action editActivity = async (activity: IActivity) => {
+    @action
+    editActivity = async (activity: IActivity) => {
         this.submitting = true;
         try {
             await agent.Activities.update(activity);
@@ -159,16 +233,19 @@ export default class ActivityStore {
         }
     }
 
-    @action openEditForm = (id: string) => {
+    @action
+    openEditForm = (id: string) => {
         this.activity = this.activityRegistry.get(id);
     }
 
 
-    @action openCreateForm = () => {
+    @action
+    openCreateForm = () => {
         this.activity = null;
     }
 
-    @action attendActivity = async () => {
+    @action
+    attendActivity = async () => {
         const attendee = createAttendee(this.rootStore.userStore.user!);
         this.loading = true;
         try {
@@ -189,7 +266,8 @@ export default class ActivityStore {
         }
     }
 
-    @action cancelAttendance = async () => {
+    @action
+    cancelAttendance = async () => {
         this.loading = true;
         try {
             await agent.Activities.unattend(this.activity!.id);
