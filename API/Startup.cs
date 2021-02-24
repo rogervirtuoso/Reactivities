@@ -4,6 +4,7 @@ using API.Middleware;
 using API.SignalR;
 using Application.Activities;
 using Application.Interfaces;
+using Application.profiles;
 using AutoMapper;
 using Domain;
 using FluentValidation.AspNetCore;
@@ -51,10 +52,13 @@ namespace API
             services.AddCors(opts =>
             {
                 opts.AddPolicy("CorsPolicy",
-                    policy => { policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000").AllowCredentials(); });
+                    policy =>
+                    {
+                        policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000")
+                            .AllowCredentials();
+                    });
             });
             services.AddMediatR(typeof(List.Handler).Assembly);
-            services.AddScoped(typeof(IPhotoAccessor), typeof(PhotoAccessor));
 
             services.AddAutoMapper(typeof(List.Handler));
             services.AddSignalR();
@@ -98,6 +102,9 @@ namespace API
             });
             services.AddScoped<IJwtGenerator, JwtGenerator>();
             services.AddScoped<IUserAccessor, UserAccessor>();
+            services.AddScoped(typeof(IPhotoAccessor), typeof(PhotoAccessor));
+            services.AddScoped<IProfileReader, ProfileReader>();
+
 
             services.Configure<CloudinarySettings>(Configuration.GetSection("Cloudinary"));
         }
