@@ -3,7 +3,6 @@ import {IUser, IUserFormValues} from "../models/User";
 import agent from "../api/agent";
 import {RootStore} from "./rootStore";
 import {history} from "../../index";
-import {Console} from "inspector";
 
 export default class UserStore {
     refreshTokenTimeout: any;
