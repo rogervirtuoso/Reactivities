@@ -31,7 +31,7 @@ axios.interceptors.response.use(undefined, error => {
     if (status === 404) {
         history.push('/notFound');
     }
-    if (status === 401 && headers['www-authenticate'].includes('Bearer error="invalid_token", error_description="The token expired')){
+    if (status === 401 && headers['www-authenticate'].includes('Bearer error="invalid_token", error_description="The token expired')) {
         window.localStorage.removeItem('jwt');
         history.push('/');
         toast.info('Your session has expired, please login again');
@@ -78,7 +78,8 @@ const Activities = {
 const User = {
     current: (): Promise<IUser> => request.get('user/'),
     login: (user: IUserFormValues): Promise<IUser> => request.post(`/user/login`, user),
-    register: (user: IUserFormValues): Promise<IUser> => request.post(`/user/register`, user)
+    register: (user: IUserFormValues): Promise<IUser> => request.post(`/user/register`, user),
+    refreshToken: (): Promise<IUser> => request.post(`/user/refreshToken`, {})
 }
 
 const Profiles = {

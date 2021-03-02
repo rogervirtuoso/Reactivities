@@ -3,8 +3,10 @@ import {IUser, IUserFormValues} from "../models/User";
 import agent from "../api/agent";
 import {RootStore} from "./rootStore";
 import {history} from "../../index";
+import {Console} from "inspector";
 
 export default class UserStore {
+    refreshTokenTimeout: any;
     rootStore: RootStore;
 
     constructor(rootStore: RootStore) {
@@ -26,6 +28,7 @@ export default class UserStore {
 
             })
             this.rootStore.commonStore.setToken(user.token);
+            this.startRefreshTokenTimer(user);
             history.push('/activities')
             this.rootStore.modalStore.closeModal();
         } catch (error) {
@@ -41,6 +44,7 @@ export default class UserStore {
 
             })
             this.rootStore.commonStore.setToken(user.token);
+            this.startRefreshTokenTimer(user);
             this.rootStore.modalStore.closeModal();
             history.push('/activities')
         } catch (error) {
@@ -53,7 +57,9 @@ export default class UserStore {
             const user = await agent.User.current();
             runInAction(() => {
                 this.user = user;
-            })
+            });
+            this.rootStore.commonStore.setToken(user.token);
+            this.startRefreshTokenTimer(user);
         } catch (error) {
             console.log(error);
         }
@@ -63,5 +69,30 @@ export default class UserStore {
         this.rootStore.commonStore.setToken(null);
         this.user = null;
         history.push('/')
+    }
+
+    @action refreshToken = async () => {
+        this.stopRefreshTokenTimer();
+        try {
+            const user = await agent.User.refreshToken();
+            runInAction(() => {
+               this.user = user;
+            });
+            this.rootStore.commonStore.setToken(user.token);
+            this.startRefreshTokenTimer(user);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    private startRefreshTokenTimer(user: IUser){
+        const jwtToken = JSON.parse(atob(user.token.split('.')[1]));
+        const expires = new Date(jwtToken.exp * 1000);
+        const timeout = expires.getTime() - Date.now() - 60;
+        this.refreshTokenTimeout = setTimeout(this.refreshToken, timeout);
+    }
+
+    private stopRefreshTokenTimer(){
+        clearTimeout(this.refreshTokenTimeout);
     }
 }
