@@ -1,4 +1,4 @@
-import React, {createContext, useContext} from 'react';
+import React, {useContext} from 'react';
 import {Button, Header, Image, Item, Segment} from "semantic-ui-react";
 import {IActivity} from "../../../app/models/activity";
 import {observer} from "mobx-react-lite";

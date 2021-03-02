@@ -26,7 +26,8 @@ const ProfilePhotos = () => {
                 </Grid.Column>
                 <Grid.Column width={16}>
                     {addPhotoMode ? (
-                        <PhotoUploadWidget uploadPhoto={uploadPhoto} loading={uploadingPhoto} setAddPhotoMode={setAddPhotoMode}/>
+                        <PhotoUploadWidget uploadPhoto={uploadPhoto} loading={uploadingPhoto}
+                                           setAddPhotoMode={setAddPhotoMode}/>
                     ) : <Card.Group itemsPerRow={5}>
                         {profile && profile.photos.map(photo => (
                             <Card key={photo.id}>
@@ -43,7 +44,7 @@ const ProfilePhotos = () => {
                                         basic
                                         positive
                                         content={'Main'}
-                                        loading={loading && target == photo.id}
+                                        loading={loading && target === photo.id}
                                         disabled={photo.isMain}
                                     />
                                     <Button
@@ -56,7 +57,7 @@ const ProfilePhotos = () => {
                                         basic
                                         negative
                                         icon={'trash'}
-                                        loading={loading && deleteTarget == photo.id}
+                                        loading={loading && deleteTarget === photo.id}
                                         disabled={photo.isMain}
                                     />
                                 </ButtonGroup>
