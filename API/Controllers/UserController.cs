@@ -37,7 +37,7 @@ namespace API.Controllers
             return user;
         }
 
-        [HttpPost]
+        [HttpPost("refreshToken")]
         public async Task<ActionResult<User>> RefreshToken(RefreshToken.Command command)
         {
             command.RefreshToken = Request.Cookies["refreshToken"];
